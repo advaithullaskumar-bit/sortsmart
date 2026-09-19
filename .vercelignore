@@ -1,0 +1,6 @@
+.env
+.env.*
+widow-scheme-finder/
+outputs/test-images/
+*.mp4
+*.pdf
