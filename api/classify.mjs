@@ -58,7 +58,7 @@ export default async function handler(req, res) {
 
 Return ONLY valid JSON with these keys: items (array of objects, one per clearly visible item; each object has item (short descriptive name), bin (Wet waste, Dry waste, Hazardous waste, E-waste, or Uncertain), hint (short local guidance), confidence (integer 0-100), box (array of four numbers [left, top, right, bottom] as percentages from 0 to 100 around the item), why (one sentence explanation), wrong_bin_consequence (one sentence explaining what goes wrong if placed in wrong bin)), overall_note (one sentence explaining the recommended sorting order), safety_note (one sentence). Never identify people. Do not provide medical, legal, or dangerous handling advice.`;
 
-    const upstream = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+    const upstream = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       body: JSON.stringify({
