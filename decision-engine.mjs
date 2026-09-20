@@ -9,10 +9,10 @@
 export const DEFAULT_COMMUNITY_PROFILE = {
   name: 'Campus pilot',
   bins: ['Wet waste', 'Dry waste', 'E-waste', 'Hazardous waste'],
-  wetKeywords: ['food', 'fruit', 'vegetable', 'peel', 'leaf', 'garden', 'organic', 'compost'],
-  dryKeywords: ['plastic', 'paper', 'cardboard', 'metal', 'can', 'bottle', 'packaging', 'glass'],
-  eWasteKeywords: ['phone', 'charger', 'cable', 'battery', 'laptop', 'earbud', 'electronic'],
-  hazardousKeywords: ['battery', 'chemical', 'paint', 'medicine', 'needle', 'sharp'],
+  wetKeywords: ['food', 'fruit', 'vegetable', 'peel', 'leaf', 'garden', 'organic', 'compost', 'tea', 'coffee', 'eggshell', 'meat', 'bone', 'bread', 'rice', 'scrap'],
+  dryKeywords: ['plastic', 'paper', 'cardboard', 'metal', 'can', 'bottle', 'packaging', 'glass', 'foil', 'container', 'box', 'wrapper', 'tin', 'carton', 'polythene', 'bag', 'jug', 'cup'],
+  eWasteKeywords: ['phone', 'charger', 'cable', 'laptop', 'earbud', 'electronic', 'wire', 'mouse', 'keyboard', 'headphone', 'gadget', 'circuit', 'screen', 'device'],
+  hazardousKeywords: ['battery', 'cell', 'chemical', 'paint', 'medicine', 'needle', 'sharp', 'syringe', 'pesticide', 'bleach', 'thermometer', 'bulb', 'tube'],
   confidenceThreshold: 72
 };
 
@@ -48,10 +48,20 @@ export function evaluateItem(rawItem, profile = DEFAULT_COMMUNITY_PROFILE) {
   const modelBin = profile.bins.includes(rawItem.bin) ? rawItem.bin : 'Uncertain';
   const ruleBin = policyBin(item, profile);
   const confidence = Math.max(0, Math.min(100, Number(rawItem.confidence || 0)));
-  const agreement = modelBin === ruleBin || modelBin === 'Uncertain' || ruleBin === 'Uncertain';
-  const safetyCritical = ruleBin === 'Hazardous waste' || ruleBin === 'E-waste';
-  const needsReview = confidence < profile.confidenceThreshold || !agreement || safetyCritical;
-  const finalBin = needsReview ? (safetyCritical && agreement ? ruleBin : (agreement ? modelBin : 'Uncertain')) : modelBin;
+
+  // Safety policy overrides AI perception for hazardous or e-waste items
+  let finalBin = modelBin;
+  if (ruleBin === 'Hazardous waste' || ruleBin === 'E-waste') {
+    finalBin = ruleBin;
+  } else if (ruleBin !== 'Uncertain' && modelBin === 'Uncertain') {
+    finalBin = ruleBin;
+  } else if (modelBin !== 'Uncertain' && ruleBin !== 'Uncertain' && modelBin !== ruleBin) {
+    finalBin = 'Uncertain';
+  }
+
+  const safetyCritical = finalBin === 'Hazardous waste' || finalBin === 'E-waste';
+  const lowConfidence = confidence < profile.confidenceThreshold;
+  const needsReview = lowConfidence || finalBin === 'Uncertain' || safetyCritical;
 
   return {
     ...rawItem,

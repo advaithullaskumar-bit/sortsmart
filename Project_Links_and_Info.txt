@@ -1,0 +1,30 @@
+====================================================================
+PROJECT INFORMATION & LINKS - SORTSMART
+====================================================================
+
+Project Name: SortSmart
+Hackathon: Be10X Build for Good (2026)
+Track: Track 3 — Product Build (Working Web Application)
+
+--------------------------------------------------------------------
+1. PUBLIC LINKS
+--------------------------------------------------------------------
+• Live Deployed Web App: https://sortsmart.vercel.app (or your Vercel deployment URL)
+• GitHub Source Repository: https://github.com/advaithullaskumar-bit/sortsmart.git
+
+--------------------------------------------------------------------
+2. CORE TECH STACK & AI LAYER
+--------------------------------------------------------------------
+• AI Vision Model: Google Gemini 3.7 / 3.6 Multimodal Vision API (gemini-3.7-flash)
+• Intelligence Core: Safety-first policy engine (decision-engine.mjs)
+• Backend API: Vercel Serverless Function (api/classify.mjs) & Node.js
+• Frontend UI: HTML5, CSS3, Vanilla JavaScript (outputs/index.html)
+
+--------------------------------------------------------------------
+3. KEY SAFETY FEATURES
+--------------------------------------------------------------------
+1. Low-Confidence Filtering: Perception confidence below 72% automatically routes items to "Human Review Required" instead of guessing.
+2. Safety-First Overrides: Hazardous items (batteries, needles, chemicals) are strictly routed to Hazardous Waste regardless of convenience tags.
+3. Real-Time Impact Metric: Compresses 15-minute municipal rule lookups into a 3-second camera scan.
+
+====================================================================
