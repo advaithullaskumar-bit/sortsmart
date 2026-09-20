@@ -6,7 +6,7 @@ import { buildSortingPlan, estimateContamination } from './decision-engine.mjs';
 
 const root = join(fileURLToPath(new URL('.', import.meta.url)), 'outputs');
 const port = Number(process.env.PORT || 8787);
-const model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+const model = (process.env.GEMINI_MODEL && !process.env.GEMINI_MODEL.includes('3.6')) ? process.env.GEMINI_MODEL : 'gemini-1.5-flash';
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' };
 

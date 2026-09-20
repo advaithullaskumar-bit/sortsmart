@@ -1,6 +1,6 @@
 import { buildSortingPlan, estimateContamination } from '../decision-engine.mjs';
 
-const model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+const model = (process.env.GEMINI_MODEL && !process.env.GEMINI_MODEL.includes('3.6')) ? process.env.GEMINI_MODEL : 'gemini-1.5-flash';
 
 function json(res, status, body) {
   res.statusCode = status;
@@ -40,8 +40,11 @@ export default async function handler(req, res) {
 
   try {
     const body = JSON.parse(await readBody(req));
-    const match = String(body.image || '').match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/);
-    if (!match) return json(res, 400, { error: 'Send a JPEG, PNG, or WebP image as a data URL.' });
+    const match = String(body.image || '').match(/^data:(image\/(?:jpeg|jpg|png|webp|gif|heic|heif));base64,\s*(.+)$/s);
+    if (!match) return json(res, 400, { error: 'Send a JPEG, JPG, PNG, or WebP image as a data URL.' });
+
+    const mimeType = match[1] === 'image/jpg' ? 'image/jpeg' : match[1];
+    const base64Data = match[2].trim().replace(/[\r\n\s]+/g, '');
 
     const mode = body.mode === 'audit' ? 'audit' : 'sort';
     const prompt = mode === 'audit'
@@ -59,7 +62,7 @@ Return ONLY valid JSON with these keys: items (array of objects, one per clearly
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ inlineData: { mimeType: match[1], data: match[2] } }, { text: prompt }] }],
+        contents: [{ role: 'user', parts: [{ inlineData: { mimeType, data: base64Data } }, { text: prompt }] }],
         generationConfig: { responseMimeType: 'application/json', temperature: 0.1 }
       })
     });
