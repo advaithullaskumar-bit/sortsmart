@@ -49,10 +49,14 @@ export function evaluateItem(rawItem, profile = DEFAULT_COMMUNITY_PROFILE) {
   const ruleBin = policyBin(item, profile);
   const confidence = Math.max(0, Math.min(100, Number(rawItem.confidence || 0)));
 
+  const lowConfidence = confidence < profile.confidenceThreshold;
+
   // Safety policy overrides AI perception for hazardous or e-waste items
   let finalBin = modelBin;
   if (ruleBin === 'Hazardous waste' || ruleBin === 'E-waste') {
     finalBin = ruleBin;
+  } else if (lowConfidence) {
+    finalBin = 'Uncertain';
   } else if (ruleBin !== 'Uncertain' && modelBin === 'Uncertain') {
     finalBin = ruleBin;
   } else if (modelBin !== 'Uncertain' && ruleBin !== 'Uncertain' && modelBin !== ruleBin) {
@@ -60,7 +64,6 @@ export function evaluateItem(rawItem, profile = DEFAULT_COMMUNITY_PROFILE) {
   }
 
   const safetyCritical = finalBin === 'Hazardous waste' || finalBin === 'E-waste';
-  const lowConfidence = confidence < profile.confidenceThreshold;
   const needsReview = lowConfidence || finalBin === 'Uncertain' || safetyCritical;
 
   return {
